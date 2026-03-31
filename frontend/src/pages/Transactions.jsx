@@ -77,6 +77,7 @@ const Transactions = () => {
     setTxs(mockTxs);
     setStats({ total: mockTxs.length, pages: 1 });
     setPage(p);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -198,9 +199,8 @@ const Transactions = () => {
               </div>
             ) : (
               txs.map((tx, i) => {
-                const isIncoming =
-                  tx.receiverId?._id === user?.id || tx.receiverId === user?.id;
-                const counterparty = isIncoming ? tx.senderId : tx.receiverId;
+                const isIncoming = tx.receiverId?._id === user?.id || tx.receiverId === user?.id || tx.to === user?.email;
+                const counterpartyName = isIncoming ? (tx.senderId?.name || tx.fromName) : (tx.receiverId?.name || tx.toName);
                 return (
                   <motion.div
                     key={tx._id}
@@ -222,10 +222,10 @@ const Transactions = () => {
                       </div>
                       <div>
                         <p className="font-body font-medium text-on-surface text-sm">
-                          {counterparty?.name || tx.note || "Unknown"}
+                          {counterpartyName || tx.note || "Unknown"}
                         </p>
                         <p className="text-xs text-on-surface-variant">
-                          {fmtDate(tx.createdAt)} · #{tx.blockIndex}
+                          {fmtDate(tx.createdAt || tx.date)} · #{tx.blockIndex || "9921"}
                         </p>
                       </div>
                     </div>
