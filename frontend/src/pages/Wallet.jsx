@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
+import { MOCK_WALLET, MOCK_TRANSACTIONS } from "../api/mockData";
 
 const Wallet = () => {
   const { user } = useAuth();
@@ -15,53 +16,8 @@ const Wallet = () => {
   const [topupMsg, setTopupMsg] = useState("");
 
   useEffect(() => {
-    // Mock demo data
-    const mockWallet = {
-      _id: "wallet_1",
-      balance: 5240.5,
-      monthlyInflow: 3500.0,
-      monthlyOutflow: 1260.0,
-      dailyLimit: 5000.0,
-    };
-
-    const mockTxs = [
-      {
-        _id: "tx1",
-        from: user?.email,
-        to: "sarah@campus.edu",
-        amount: 150,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 86400000),
-        fromName: "You",
-        toName: "Sarah Jensen",
-      },
-      {
-        _id: "tx2",
-        from: "john@campus.edu",
-        to: user?.email,
-        amount: 500,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 172800000),
-        fromName: "John Smith",
-        toName: "You",
-      },
-      {
-        _id: "tx3",
-        from: user?.email,
-        to: "vendor@campus.edu",
-        amount: 85.5,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 259200000),
-        fromName: "You",
-        toName: "Vendor",
-      },
-    ];
-
-    setWallet(mockWallet);
-    setTxs(mockTxs);
+    setWallet(MOCK_WALLET);
+    setTxs(MOCK_TRANSACTIONS.slice(0, 3));
     setLoading(false);
   }, [user]);
 

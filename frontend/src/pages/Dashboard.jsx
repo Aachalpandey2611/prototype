@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import QRScanner from "../components/QRScanner";
-
+import { MOCK_WALLET, MOCK_TRANSACTIONS } from "../api/mockData";
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },
@@ -22,64 +22,8 @@ const Dashboard = () => {
 
   useEffect(() => {
     // Mock demo data for showcase
-    const mockWallet = {
-      _id: "wallet_1",
-      balance: 5240.5,
-      monthlyInflow: 3500.0,
-      monthlyOutflow: 1260.0,
-      userId: user?.id,
-    };
-
-    const mockTransactions = [
-      {
-        _id: "tx1",
-        from: user?.email,
-        to: "sarah@campus.edu",
-        amount: 150,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 86400000),
-      },
-      {
-        _id: "tx2",
-        from: "john@campus.edu",
-        to: user?.email,
-        amount: 500,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 172800000),
-      },
-      {
-        _id: "tx3",
-        from: user?.email,
-        to: "vendor@campus.edu",
-        amount: 85.5,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 259200000),
-      },
-      {
-        _id: "tx4",
-        from: "admin@campus.edu",
-        to: user?.email,
-        amount: 2000,
-        status: "success",
-        type: "topup",
-        date: new Date(Date.now() - 345600000),
-      },
-      {
-        _id: "tx5",
-        from: user?.email,
-        to: "emma@campus.edu",
-        amount: 325,
-        status: "success",
-        type: "transfer",
-        date: new Date(Date.now() - 432000000),
-      },
-    ];
-
-    setWallet(mockWallet);
-    setTxs(mockTransactions);
+    setWallet({ ...MOCK_WALLET, userId: user?.id });
+    setTxs(MOCK_TRANSACTIONS.slice(0, 5));
     setLoading(false);
   }, [user]);
 
