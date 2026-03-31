@@ -1,9 +1,9 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { motion } from 'framer-motion';
-import Sidebar from '../components/Sidebar';
-import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import React, { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { motion } from "framer-motion";
+import Sidebar from "../components/Sidebar";
+import { useAuth } from "../context/AuthContext";
+import api from "../api/axios";
 
 const Wallet = () => {
   const { user } = useAuth();
@@ -11,24 +11,54 @@ const Wallet = () => {
   const [wallet, setWallet] = useState(null);
   const [txs, setTxs] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [topupAmount, setTopupAmount] = useState('');
+  const [topupAmount, setTopupAmount] = useState("");
   const [topupLoading, setTopupLoading] = useState(false);
-  const [topupMsg, setTopupMsg] = useState('');
+  const [topupMsg, setTopupMsg] = useState("");
 
   useEffect(() => {
     // Mock demo data
     const mockWallet = {
       _id: "wallet_1",
-      balance: 5240.50,
-      monthlyInflow: 3500.00,
-      monthlyOutflow: 1260.00,
-      dailyLimit: 5000.00,
+      balance: 5240.5,
+      monthlyInflow: 3500.0,
+      monthlyOutflow: 1260.0,
+      dailyLimit: 5000.0,
     };
-    
+
     const mockTxs = [
-      { _id: "tx1", from: user?.email, to: "sarah@campus.edu", amount: 150, status: "success", type: "transfer", date: new Date(Date.now() - 86400000), fromName: "You", toName: "Sarah Jensen" },
-      { _id: "tx2", from: "john@campus.edu", to: user?.email, amount: 500, status: "success", type: "transfer", date: new Date(Date.now() - 172800000), fromName: "John Smith", toName: "You" },
-      { _id: "tx3", from: user?.email, to: "vendor@campus.edu", amount: 85.50, status: "success", type: "transfer", date: new Date(Date.now() - 259200000), fromName: "You", toName: "Vendor" },
+      {
+        _id: "tx1",
+        from: user?.email,
+        to: "sarah@campus.edu",
+        amount: 150,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 86400000),
+        fromName: "You",
+        toName: "Sarah Jensen",
+      },
+      {
+        _id: "tx2",
+        from: "john@campus.edu",
+        to: user?.email,
+        amount: 500,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 172800000),
+        fromName: "John Smith",
+        toName: "You",
+      },
+      {
+        _id: "tx3",
+        from: user?.email,
+        to: "vendor@campus.edu",
+        amount: 85.5,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 259200000),
+        fromName: "You",
+        toName: "Vendor",
+      },
     ];
 
     setWallet(mockWallet);
@@ -36,22 +66,39 @@ const Wallet = () => {
     setLoading(false);
   }, [user]);
 
-  const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
-  const fmtDate = d => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const fmt = (n) =>
+    new Intl.NumberFormat("en-US", {
+      style: "currency",
+      currency: "USD",
+    }).format(n || 0);
+  const fmtDate = (d) =>
+    new Date(d).toLocaleDateString("en-US", {
+      year: "numeric",
+      month: "short",
+      day: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
+    });
 
-  const handleTopup = async e => {
+  const handleTopup = async (e) => {
     e.preventDefault();
     if (!topupAmount || topupAmount <= 0) return;
-    setTopupLoading(true); setTopupMsg('');
+    setTopupLoading(true);
+    setTopupMsg("");
     try {
-      const { data } = await api.post('/wallet/topup', { amount: Number(topupAmount) });
+      const { data } = await api.post("/wallet/topup", {
+        amount: Number(topupAmount),
+      });
       if (data.success) {
         setWallet(data.wallet);
         setTopupMsg(data.message);
-        setTopupAmount('');
+        setTopupAmount("");
       }
-    } catch (err) { setTopupMsg(err.response?.data?.message || 'Failed'); }
-    finally { setTopupLoading(false); }
+    } catch (err) {
+      setTopupMsg(err.response?.data?.message || "Failed");
+    } finally {
+      setTopupLoading(false);
+    }
   };
 
   return (
@@ -60,28 +107,66 @@ const Wallet = () => {
       <main className="flex-1 ml-64 p-8 overflow-auto">
         {loading ? (
           <div className="space-y-4 animate-pulse max-w-5xl mx-auto">
-            {[1, 2, 3].map(i => <div key={i} className="h-32 skeleton rounded-xl" />)}
+            {[1, 2, 3].map((i) => (
+              <div key={i} className="h-32 skeleton rounded-xl" />
+            ))}
           </div>
         ) : (
-          <motion.div initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.4 }} className="max-w-5xl mx-auto space-y-8">
+          <motion.div
+            initial={{ opacity: 0, y: 16 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.4 }}
+            className="max-w-5xl mx-auto space-y-8"
+          >
             {/* Header */}
             <div>
-              <p className="text-xs uppercase tracking-widest text-on-surface-variant font-body mb-1">Institutional Treasury #{user?.campusId}</p>
-              <h1 className="font-headline font-bold text-3xl text-on-surface">Wallet Details</h1>
-              <p className="text-on-surface-variant font-body mt-2">Manage your primary settlement account and view historical cash flows.</p>
+              <p className="text-xs uppercase tracking-widest text-on-surface-variant font-body mb-1">
+                Institutional Treasury #{user?.campusId}
+              </p>
+              <h1 className="font-headline font-bold text-3xl text-on-surface">
+                Wallet Details
+              </h1>
+              <p className="text-on-surface-variant font-body mt-2">
+                Manage your primary settlement account and view historical cash
+                flows.
+              </p>
             </div>
 
             {/* Stats Row */}
             <div className="grid grid-cols-4 gap-4">
               {[
-                { label: 'Available Balance', value: fmt(wallet?.balance), icon: 'account_balance', color: 'text-primary' },
-                { label: 'Monthly Inflow', value: fmt(wallet?.monthlyInflow), icon: 'trending_up', color: 'text-tertiary' },
-                { label: 'Monthly Outflow', value: fmt(wallet?.monthlyOutflow), icon: 'trending_down', color: 'text-error' },
-                { label: 'Daily Limit', value: fmt(wallet?.dailyLimit), icon: 'speed', color: 'text-secondary' },
-              ].map(s => (
+                {
+                  label: "Available Balance",
+                  value: fmt(wallet?.balance),
+                  icon: "account_balance",
+                  color: "text-primary",
+                },
+                {
+                  label: "Monthly Inflow",
+                  value: fmt(wallet?.monthlyInflow),
+                  icon: "trending_up",
+                  color: "text-tertiary",
+                },
+                {
+                  label: "Monthly Outflow",
+                  value: fmt(wallet?.monthlyOutflow),
+                  icon: "trending_down",
+                  color: "text-error",
+                },
+                {
+                  label: "Daily Limit",
+                  value: fmt(wallet?.dailyLimit),
+                  icon: "speed",
+                  color: "text-secondary",
+                },
+              ].map((s) => (
                 <div key={s.label} className="stat-card">
-                  <div className={`w-9 h-9 rounded-xl ${s.color.replace('text-', 'bg-')}/10 flex items-center justify-center mb-3`}>
-                    <span className={`material-icons text-xl ${s.color}`}>{s.icon}</span>
+                  <div
+                    className={`w-9 h-9 rounded-xl ${s.color.replace("text-", "bg-")}/10 flex items-center justify-center mb-3`}
+                  >
+                    <span className={`material-icons text-xl ${s.color}`}>
+                      {s.icon}
+                    </span>
                   </div>
                   <p className="stat-value">{s.value}</p>
                   <p className="stat-label">{s.label}</p>
@@ -91,44 +176,98 @@ const Wallet = () => {
 
             {/* Add Funds */}
             <div className="card p-6">
-              <h2 className="font-headline font-semibold text-lg text-on-surface mb-4">Add Funds</h2>
+              <h2 className="font-headline font-semibold text-lg text-on-surface mb-4">
+                Add Funds
+              </h2>
               <form onSubmit={handleTopup} className="flex gap-3">
-                <input type="number" min="1" step="0.01" className="input-field flex-1" placeholder="Enter amount (USD)"
-                  value={topupAmount} onChange={e => setTopupAmount(e.target.value)} id="topup-amount" />
-                <button type="submit" className="btn-primary px-8" id="topup-submit" disabled={topupLoading}>
-                  {topupLoading ? <span className="material-icons animate-spin text-base">sync</span> : 'Add Funds'}
+                <input
+                  type="number"
+                  min="1"
+                  step="0.01"
+                  className="input-field flex-1"
+                  placeholder="Enter amount (USD)"
+                  value={topupAmount}
+                  onChange={(e) => setTopupAmount(e.target.value)}
+                  id="topup-amount"
+                />
+                <button
+                  type="submit"
+                  className="btn-primary px-8"
+                  id="topup-submit"
+                  disabled={topupLoading}
+                >
+                  {topupLoading ? (
+                    <span className="material-icons animate-spin text-base">
+                      sync
+                    </span>
+                  ) : (
+                    "Add Funds"
+                  )}
                 </button>
               </form>
-              {topupMsg && <p className="mt-2 text-sm text-tertiary font-body">{topupMsg}</p>}
+              {topupMsg && (
+                <p className="mt-2 text-sm text-tertiary font-body">
+                  {topupMsg}
+                </p>
+              )}
             </div>
 
             {/* Recent Activity */}
             <div>
-              <h2 className="font-headline font-semibold text-lg text-on-surface mb-4">Recent Activity</h2>
+              <h2 className="font-headline font-semibold text-lg text-on-surface mb-4">
+                Recent Activity
+              </h2>
               <div className="card p-2 space-y-1">
                 {txs.map((tx, i) => {
-                  const isIncoming = tx.receiverId?._id === user?.id || tx.receiverId === user?.id;
+                  const isIncoming =
+                    tx.receiverId?._id === user?.id ||
+                    tx.receiverId === user?.id;
                   return (
-                    <motion.div key={tx._id} initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: i * 0.04 }}
-                      onClick={() => navigate(`/transactions/${tx._id}`)} className="tx-row group"
+                    <motion.div
+                      key={tx._id}
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ delay: i * 0.04 }}
+                      onClick={() => navigate(`/transactions/${tx._id}`)}
+                      className="tx-row group"
                     >
                       <div className="flex items-center gap-3">
-                        <div className={`w-10 h-10 rounded-xl flex items-center justify-center ${isIncoming ? 'bg-tertiary/10' : 'bg-error/10'}`}>
-                          <span className={`material-icons text-xl ${isIncoming ? 'text-tertiary' : 'text-error'}`}>
-                            {isIncoming ? 'call_received' : 'call_made'}
+                        <div
+                          className={`w-10 h-10 rounded-xl flex items-center justify-center ${isIncoming ? "bg-tertiary/10" : "bg-error/10"}`}
+                        >
+                          <span
+                            className={`material-icons text-xl ${isIncoming ? "text-tertiary" : "text-error"}`}
+                          >
+                            {isIncoming ? "call_received" : "call_made"}
                           </span>
                         </div>
                         <div>
-                          <p className="font-body font-medium text-on-surface text-sm">{tx.note || (isIncoming ? tx.senderId?.name : tx.receiverId?.name)}</p>
-                          <p className="text-xs text-on-surface-variant font-mono">{tx.txHash?.slice(0, 20)}...</p>
-                          <p className="text-xs text-on-surface-variant">{fmtDate(tx.createdAt)}</p>
+                          <p className="font-body font-medium text-on-surface text-sm">
+                            {tx.note ||
+                              (isIncoming
+                                ? tx.senderId?.name
+                                : tx.receiverId?.name)}
+                          </p>
+                          <p className="text-xs text-on-surface-variant font-mono">
+                            {tx.txHash?.slice(0, 20)}...
+                          </p>
+                          <p className="text-xs text-on-surface-variant">
+                            {fmtDate(tx.createdAt)}
+                          </p>
                         </div>
                       </div>
                       <div className="text-right">
-                        <p className={`font-headline font-semibold text-sm ${isIncoming ? 'text-tertiary' : 'text-error'}`}>
-                          {isIncoming ? '+' : '-'}{fmt(tx.amount)}
+                        <p
+                          className={`font-headline font-semibold text-sm ${isIncoming ? "text-tertiary" : "text-error"}`}
+                        >
+                          {isIncoming ? "+" : "-"}
+                          {fmt(tx.amount)}
                         </p>
-                        <span className={`badge-${tx.status === 'completed' ? 'success' : tx.status === 'pending' ? 'pending' : 'error'}`}>{tx.status}</span>
+                        <span
+                          className={`badge-${tx.status === "completed" ? "success" : tx.status === "pending" ? "pending" : "error"}`}
+                        >
+                          {tx.status}
+                        </span>
                       </div>
                     </motion.div>
                   );
@@ -140,11 +279,17 @@ const Wallet = () => {
             <div className="card-container p-5 flex gap-4">
               <span className="material-icons text-primary mt-0.5">shield</span>
               <div>
-                <p className="font-headline font-semibold text-on-surface text-sm">Governance Note</p>
-                <p className="text-on-surface-variant text-xs font-body mt-1">
-                  All data is cryptographically hashed and anchored to the CampusChain mainnet. High-value transactions require multi-signature authorization.
+                <p className="font-headline font-semibold text-on-surface text-sm">
+                  Governance Note
                 </p>
-                <p className="text-xs text-tertiary font-body mt-2">Node Syncing: 99.9% • Last Audit: Clean</p>
+                <p className="text-on-surface-variant text-xs font-body mt-1">
+                  All data is cryptographically hashed and anchored to the
+                  CampusChain mainnet. High-value transactions require
+                  multi-signature authorization.
+                </p>
+                <p className="text-xs text-tertiary font-body mt-2">
+                  Node Syncing: 99.9% • Last Audit: Clean
+                </p>
               </div>
             </div>
           </motion.div>
