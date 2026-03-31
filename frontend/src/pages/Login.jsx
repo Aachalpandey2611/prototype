@@ -3,44 +3,39 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { useAuth } from "../context/AuthContext";
 
+// Static demo credentials
+const DEMO_CREDENTIALS = [
+  { email: "admin@campus.edu",   password: "admin123",   role: "admin",   label: "Admin",   icon: "admin_panel_settings", color: "text-primary"   },
+  { email: "student@campus.edu", password: "student123", role: "student", label: "Student", icon: "school",               color: "text-secondary" },
+];
+
 const Login = () => {
-  const { login, mockLogin } = useAuth();
+  const { mockLogin } = useAuth();
   const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const [showRegister, setShowRegister] = useState(false);
-  const [regForm, setRegForm] = useState({
-    name: "",
-    email: "",
-    password: "",
-    department: "",
-  });
 
-  const executeLogin = async (email, password) => {
-    setError("");
+  const doLogin = (type) => {
     setLoading(true);
-    try {
-      const data = await login(email, password);
-      if (data.success) navigate("/dashboard");
-      else setError(data.message || "Invalid credentials");
-    } catch (err) {
-      setError(err.response?.data?.message || "Login failed");
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const handleQuickLogin = (type) => {
-    mockLogin(type);
     setTimeout(() => {
-      window.location.href = "/dashboard";
-    }, 100);
+      mockLogin(type);
+      window.location.href = type === "admin" ? "/admin" : "/dashboard";
+    }, 600);
   };
 
+  // Allow typing the demo credentials in the form too
   const handleLogin = (e) => {
     e.preventDefault();
-    executeLogin(form.email, form.password);
+    setError("");
+    const match = DEMO_CREDENTIALS.find(
+      (c) => c.email === form.email && c.password === form.password
+    );
+    if (match) {
+      doLogin(match.role);
+    } else {
+      setError("Invalid credentials. Use the demo accounts shown below.");
+    }
   };
 
   return (
@@ -58,33 +53,34 @@ const Login = () => {
             <div className="w-10 h-10 rounded-xl bg-white/10 backdrop-blur flex items-center justify-center">
               <span className="material-icons text-white text-xl">link</span>
             </div>
-            <span className="font-headline font-bold text-white text-xl">
-              CampusChain
-            </span>
+            <span className="font-headline font-bold text-white text-xl">CampusChain</span>
           </div>
           <h2 className="font-headline font-bold text-white text-5xl leading-tight mb-6">
-            The institutional
-            <br />
-            ledger for
-            <br />
-            modern academia.
+            The institutional<br />ledger for<br />modern academia.
           </h2>
           <p className="text-white/60 font-body text-lg leading-relaxed max-w-md">
-            Secure, transparent, and immutable financial infrastructure for the
-            world's leading educational institutions.
+            Secure, transparent, and immutable financial infrastructure for the world's leading educational institutions.
           </p>
         </div>
-        <div className="relative z-10 flex items-center gap-6">
-          {["Enterprise Grade Security", "Blockchain Verified", "v4.2.0"].map(
-            (tag) => (
-              <span
-                key={tag}
-                className="text-white/50 text-xs font-body font-medium"
-              >
-                • {tag}
-              </span>
-            ),
-          )}
+
+        {/* Demo info panel on left side */}
+        <div className="relative z-10 space-y-4">
+          <p className="text-white/40 text-xs uppercase tracking-widest font-body mb-3">Demo Prototype — Static Mode</p>
+          {DEMO_CREDENTIALS.map((c) => (
+            <div key={c.role} className="bg-white/5 border border-white/10 rounded-xl p-4 backdrop-blur">
+              <div className="flex items-center gap-2 mb-2">
+                <span className="material-icons text-white/70 text-base">{c.icon}</span>
+                <span className="text-white/80 font-headline font-semibold text-sm">{c.label} Account</span>
+              </div>
+              <p className="text-white/50 text-xs font-mono">Email: {c.email}</p>
+              <p className="text-white/50 text-xs font-mono">Password: {c.password}</p>
+            </div>
+          ))}
+          <div className="flex items-center gap-6 pt-2">
+            {["Enterprise Grade Security", "Blockchain Verified", "v4.2.0"].map((tag) => (
+              <span key={tag} className="text-white/50 text-xs font-body font-medium">• {tag}</span>
+            ))}
+          </div>
         </div>
       </motion.div>
 
@@ -96,195 +92,93 @@ const Login = () => {
         className="flex-1 flex items-center justify-center p-8"
       >
         <div className="w-full max-w-md">
+          {/* Mobile logo */}
           <div className="lg:hidden flex items-center gap-2 mb-10">
             <div className="w-8 h-8 rounded-xl bg-primary-gradient flex items-center justify-center">
               <span className="material-icons text-white text-base">link</span>
             </div>
-            <span className="font-headline font-bold text-navy">
-              CampusChain
-            </span>
+            <span className="font-headline font-bold text-navy">CampusChain</span>
           </div>
 
           <div className="mb-8">
-            <p className="text-xs uppercase tracking-widest text-on-surface-variant font-body mb-2">
-              Vault Access
-            </p>
-            <h1 className="font-headline font-bold text-3xl text-on-surface">
-              Welcome back
-            </h1>
-            <p className="text-on-surface-variant font-body mt-2">
-              Please enter your institutional credentials to continue.
-            </p>
+            <p className="text-xs uppercase tracking-widest text-on-surface-variant font-body mb-2">Vault Access</p>
+            <h1 className="font-headline font-bold text-3xl text-on-surface">Welcome back</h1>
+            <p className="text-on-surface-variant font-body mt-2">Sign in with your credentials or use a quick demo account.</p>
           </div>
 
           {error && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              className="mb-4 p-3 rounded-xl bg-error/10 text-error text-sm font-body"
-            >
+            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="mb-4 p-3 rounded-xl bg-error/10 text-error text-sm font-body">
               {error}
             </motion.div>
           )}
 
+          {/* Email / Password form */}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
-              <label className="block text-xs font-body font-medium text-on-surface-variant mb-2 uppercase tracking-wide">
-                Email
-              </label>
-              <input
-                type="email"
-                value={form.email}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, email: e.target.value }))
-                }
-                className="input-field"
-                placeholder="admin@campus.edu"
-                id="login-email"
-                required
-              />
+              <label className="block text-xs font-body font-medium text-on-surface-variant mb-2 uppercase tracking-wide">Email</label>
+              <input type="email" value={form.email}
+                onChange={(e) => setForm((f) => ({ ...f, email: e.target.value }))}
+                className="input-field" placeholder="admin@campus.edu" id="login-email" required />
             </div>
             <div>
-              <label className="block text-xs font-body font-medium text-on-surface-variant mb-2 uppercase tracking-wide">
-                Password
-              </label>
-              <input
-                type="password"
-                value={form.password}
-                onChange={(e) =>
-                  setForm((f) => ({ ...f, password: e.target.value }))
-                }
-                className="input-field"
-                placeholder="••••••••"
-                id="login-password"
-                required
-              />
+              <label className="block text-xs font-body font-medium text-on-surface-variant mb-2 uppercase tracking-wide">Password</label>
+              <input type="password" value={form.password}
+                onChange={(e) => setForm((f) => ({ ...f, password: e.target.value }))}
+                className="input-field" placeholder="••••••••" id="login-password" required />
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              id="login-submit"
-              className="btn-primary w-full mt-2 flex items-center justify-center gap-2"
-            >
-              {loading ? (
-                <span className="material-icons animate-spin text-base">
-                  sync
-                </span>
-              ) : null}
-              {loading ? "Authenticating..." : "Access Vault"}
+            <button type="submit" disabled={loading} id="login-submit"
+              className="btn-primary w-full mt-2 flex items-center justify-center gap-2">
+              {loading && <span className="material-icons animate-spin text-base">sync</span>}
+              {loading ? "Signing in..." : "Access Vault"}
             </button>
           </form>
 
-          <div className="mt-4 grid grid-cols-2 gap-3">
-            <button
-              type="button"
-              onClick={() => handleQuickLogin("admin")}
-              disabled={loading}
-              className="btn-tertiary text-sm text-center border border-primary/20 hover:border-transparent hover:bg-primary/10 transition disabled:opacity-50"
-            >
-              {loading ? "⏳ Loading..." : "👤 Admin Login"}
-            </button>
-            <button
-              type="button"
-              onClick={() => handleQuickLogin("student")}
-              disabled={loading}
-              className="btn-tertiary text-sm text-center border border-primary/20 hover:border-transparent hover:bg-primary/10 transition disabled:opacity-50"
-            >
-              {loading ? "⏳ Loading..." : "👨 Student Login"}
-            </button>
+          {/* Divider */}
+          <div className="flex items-center gap-3 my-6">
+            <div className="flex-1 h-px bg-surface-container" />
+            <span className="text-xs text-on-surface-variant font-body">or use a demo account</span>
+            <div className="flex-1 h-px bg-surface-container" />
           </div>
 
-          <div className="mt-6 text-center">
-            <p className="text-on-surface-variant text-sm font-body">
-              New to CampusChain?{" "}
-              <button
-                onClick={() => setShowRegister(!showRegister)}
-                className="text-primary font-medium hover:underline"
+          {/* Quick login buttons */}
+          <div className="grid grid-cols-2 gap-3">
+            {DEMO_CREDENTIALS.map((c) => (
+              <motion.button
+                key={c.role}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                type="button"
+                onClick={() => doLogin(c.role)}
+                disabled={loading}
+                className="card p-4 text-left hover:shadow-float transition-all duration-300 disabled:opacity-50 border border-surface-container hover:border-primary/30"
               >
-                Create account
-              </button>
-            </p>
+                <div className="flex items-center gap-2 mb-2">
+                  <span className={`material-icons text-xl ${c.color}`}>{c.icon}</span>
+                  <span className="font-headline font-semibold text-on-surface text-sm">{c.label} Login</span>
+                </div>
+                <p className="text-xs text-on-surface-variant font-mono truncate">{c.email}</p>
+                <p className="text-xs text-on-surface-variant/60 font-body mt-1">
+                  {c.role === "admin" ? "Full admin access" : "Student portal"}
+                </p>
+              </motion.button>
+            ))}
           </div>
 
-          {showRegister && (
-            <motion.div
-              initial={{ opacity: 0, y: 12 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mt-6 p-5 rounded-xl bg-surface-low space-y-3"
-            >
-              <p className="font-headline font-semibold text-on-surface text-sm">
-                New Account
-              </p>
-              <input
-                className="input-field text-sm"
-                placeholder="Full Name"
-                value={regForm.name}
-                onChange={(e) =>
-                  setRegForm((f) => ({ ...f, name: e.target.value }))
-                }
-                id="reg-name"
-              />
-              <input
-                className="input-field text-sm"
-                type="email"
-                placeholder="Email"
-                value={regForm.email}
-                onChange={(e) =>
-                  setRegForm((f) => ({ ...f, email: e.target.value }))
-                }
-                id="reg-email"
-              />
-              <input
-                className="input-field text-sm"
-                type="password"
-                placeholder="Password"
-                value={regForm.password}
-                onChange={(e) =>
-                  setRegForm((f) => ({ ...f, password: e.target.value }))
-                }
-                id="reg-password"
-              />
-              <input
-                className="input-field text-sm"
-                placeholder="Department"
-                value={regForm.department}
-                onChange={(e) =>
-                  setRegForm((f) => ({ ...f, department: e.target.value }))
-                }
-                id="reg-dept"
-              />
-              <button
-                onClick={async () => {
-                  setError("");
-                  setLoading(true);
-                  try {
-                    const { register } = useAuth();
-                    const data = await register(regForm);
-                    if (data.success) navigate("/dashboard");
-                  } catch (err) {
-                    setError(
-                      err.response?.data?.message || "Registration failed",
-                    );
-                  } finally {
-                    setLoading(false);
-                  }
-                }}
-                className="btn-primary w-full text-sm"
-                id="reg-submit"
-              >
-                Create Account
-              </button>
-            </motion.div>
-          )}
+          {/* Mobile demo credentials hint */}
+          <div className="lg:hidden mt-6 p-4 rounded-xl bg-surface-container space-y-2">
+            <p className="text-xs text-on-surface-variant font-body font-semibold uppercase tracking-wide">Demo Credentials</p>
+            {DEMO_CREDENTIALS.map((c) => (
+              <div key={c.role} className="flex justify-between text-xs font-mono text-on-surface-variant">
+                <span>{c.email}</span>
+                <span>{c.password}</span>
+              </div>
+            ))}
+          </div>
 
           <div className="mt-8 flex items-center gap-6 justify-center">
             {["System Status", "Privacy Policy", "Compliance"].map((link) => (
-              <button
-                key={link}
-                className="text-xs text-on-surface-variant hover:text-on-surface font-body transition-colors"
-              >
-                {link}
-              </button>
+              <button key={link} className="text-xs text-on-surface-variant hover:text-on-surface font-body transition-colors">{link}</button>
             ))}
           </div>
           <p className="text-center text-xs text-on-surface-variant mt-4 font-body">

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import { MOCK_NOTIFICATIONS } from '../api/mockData';
 
 const Notifications = () => {
   const [notifications, setNotifications] = useState([]);
@@ -9,24 +9,26 @@ const Notifications = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get('/notifications').then(({ data }) => { setNotifications(data.notifications); setUnreadCount(data.unreadCount); }).finally(() => setLoading(false));
+    setTimeout(() => {
+      setNotifications(MOCK_NOTIFICATIONS);
+      setUnreadCount(MOCK_NOTIFICATIONS.filter(n => !n.read).length);
+      setLoading(false);
+    }, 400);
   }, []);
 
-  const markRead = async (id) => {
-    await api.patch(`/notifications/${id}/read`);
+  const markRead = (id) => {
     setNotifications(ns => ns.map(n => n._id === id ? { ...n, read: true } : n));
     setUnreadCount(c => Math.max(0, c - 1));
   };
 
-  const markAllRead = async () => {
-    await api.patch('/notifications/read-all');
+  const markAllRead = () => {
     setNotifications(ns => ns.map(n => ({ ...n, read: true })));
     setUnreadCount(0);
   };
 
-  const iconMap = { transaction: 'payments', system: 'info', alert: 'warning', promo: 'local_offer' };
+  const iconMap  = { transaction: 'payments', system: 'info', alert: 'warning', promo: 'local_offer' };
   const colorMap = { transaction: 'text-tertiary bg-tertiary/10', system: 'text-secondary bg-secondary/10', alert: 'text-error bg-error/10', promo: 'text-primary bg-primary/10' };
-  const fmtDate = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const fmtDate  = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
   return (
     <div className="page-wrapper">

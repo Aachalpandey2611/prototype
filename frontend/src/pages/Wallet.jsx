@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
-import api from "../api/axios";
 
 const Wallet = () => {
   const { user } = useAuth();
@@ -80,25 +79,18 @@ const Wallet = () => {
       minute: "2-digit",
     });
 
-  const handleTopup = async (e) => {
+  const handleTopup = (e) => {
     e.preventDefault();
     if (!topupAmount || topupAmount <= 0) return;
     setTopupLoading(true);
     setTopupMsg("");
-    try {
-      const { data } = await api.post("/wallet/topup", {
-        amount: Number(topupAmount),
-      });
-      if (data.success) {
-        setWallet(data.wallet);
-        setTopupMsg(data.message);
-        setTopupAmount("");
-      }
-    } catch (err) {
-      setTopupMsg(err.response?.data?.message || "Failed");
-    } finally {
+    setTimeout(() => {
+      const amount = Number(topupAmount);
+      setWallet(w => ({ ...w, balance: w.balance + amount, monthlyInflow: w.monthlyInflow + amount }));
+      setTopupMsg(`$${amount.toFixed(2)} added successfully`);
+      setTopupAmount("");
       setTopupLoading(false);
-    }
+    }, 700);
   };
 
   return (

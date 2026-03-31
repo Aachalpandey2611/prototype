@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import { searchUsers } from '../api/mockData';
 
 const STEPS = ['Find Recipient', 'Enter Amount', 'Confirm & Send'];
 
@@ -24,26 +24,18 @@ const SendMoney = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    const delayDebounceFn = setTimeout(async () => {
+    const delayDebounceFn = setTimeout(() => {
       if (query.trim().length >= 2) {
         setSearching(true);
-        try {
-          const { data } = await api.get(`/transactions/search-users?q=${encodeURIComponent(query)}`);
-          if (data.success) {
-            setSearchResults(data.users);
-            setShowDropdown(true);
-          }
-        } catch (err) {
-          console.error(err);
-        } finally {
-          setSearching(false);
-        }
+        const results = searchUsers(query, user?.email);
+        setSearchResults(results);
+        setShowDropdown(true);
+        setSearching(false);
       } else {
         setSearchResults([]);
         setShowDropdown(false);
       }
     }, 300);
-
     return () => clearTimeout(delayDebounceFn);
   }, [query]);
 
@@ -52,27 +44,26 @@ const SendMoney = () => {
     const params = new URLSearchParams(location.search);
     const toParam = params.get('to');
     if (toParam && step === 0) {
-      api.get(`/transactions/search-users?q=${encodeURIComponent(toParam)}`)
-        .then(({ data }) => {
-          if (data.success && data.users && data.users.length === 1) {
-            setRecipient(data.users[0]);
-            setStep(1);
-          } else {
-            setQuery(toParam);
-          }
-        })
-        .catch(console.error);
+      const results = searchUsers(toParam, user?.email);
+      if (results.length === 1) { setRecipient(results[0]); setStep(1); }
+      else { setQuery(toParam); }
     }
   }, [location.search]);
 
-  const handleSend = async () => {
+  const handleSend = () => {
     if (!amount || amount <= 0) { setError('Enter a valid amount'); return; }
     setSending(true); setError('');
-    try {
-      const { data } = await api.post('/transactions/send', { receiverEmail: recipient.email, amount: Number(amount), note });
-      if (data.success) { setTxResult(data.transaction); setStep(3); }
-    } catch (err) { setError(err.response?.data?.message || 'Transfer failed'); }
-    finally { setSending(false); }
+    setTimeout(() => {
+      const fakeTx = {
+        _id: 'tx_' + Date.now(),
+        amount: Number(amount),
+        txHash: '0x' + Array.from({ length: 64 }, () => Math.floor(Math.random() * 16).toString(16)).join(''),
+        status: 'completed',
+      };
+      setTxResult(fakeTx);
+      setStep(3);
+      setSending(false);
+    }, 1000);
   };
 
   const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);

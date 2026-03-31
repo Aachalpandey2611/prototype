@@ -5,7 +5,6 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
-import api from "../api/axios";
 
 const AuthContext = createContext(null);
 
@@ -26,25 +25,32 @@ export const AuthProvider = ({ children }) => {
   }, []);
 
   const login = useCallback(async (email, password) => {
-    const { data } = await api.post("/auth/login", { email, password });
-    if (data.success) {
-      localStorage.setItem("cc_token", data.token);
-      localStorage.setItem("cc_user", JSON.stringify(data.user));
-      setToken(data.token);
-      setUser(data.user);
+    // Static prototype — no real API
+    const mockUsers = {
+      'admin@campus.edu':   { id: 'admin_123',   name: 'Dr. Alexander Vance', email: 'admin@campus.edu',   role: 'admin',   campusId: 'CC-ADMIN-001' },
+      'student@campus.edu': { id: 'student_123', name: 'Alex Rivera',         email: 'student@campus.edu', role: 'student', campusId: 'CC-STU-9042'  },
+    };
+    const user = mockUsers[email];
+    if (user) {
+      const token = 'mock-jwt-token-' + Date.now();
+      localStorage.setItem('cc_token', token);
+      localStorage.setItem('cc_user', JSON.stringify(user));
+      setToken(token);
+      setUser(user);
+      return { success: true, token, user };
     }
-    return data;
+    return { success: false, message: 'Invalid credentials' };
   }, []);
 
   const register = useCallback(async (formData) => {
-    const { data } = await api.post("/auth/register", formData);
-    if (data.success) {
-      localStorage.setItem("cc_token", data.token);
-      localStorage.setItem("cc_user", JSON.stringify(data.user));
-      setToken(data.token);
-      setUser(data.user);
-    }
-    return data;
+    // Static prototype — simulate successful registration
+    const user = { id: 'new_' + Date.now(), name: formData.name, email: formData.email, role: 'student', campusId: 'CC-STU-NEW1' };
+    const token = 'mock-jwt-token-' + Date.now();
+    localStorage.setItem('cc_token', token);
+    localStorage.setItem('cc_user', JSON.stringify(user));
+    setToken(token);
+    setUser(user);
+    return { success: true, token, user };
   }, []);
 
   const mockLogin = useCallback((type) => {

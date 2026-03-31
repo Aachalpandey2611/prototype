@@ -5,7 +5,7 @@ import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import Sidebar from '../components/Sidebar';
 import { useAuth } from '../context/AuthContext';
-import api from '../api/axios';
+import { MOCK_TRANSACTIONS } from '../api/mockData';
 
 const TransactionDetail = () => {
   const { id } = useParams();
@@ -15,7 +15,29 @@ const TransactionDetail = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api.get(`/transactions/${id}`).then(({ data }) => setTx(data.transaction)).finally(() => setLoading(false));
+    setTimeout(() => {
+      // Look up from mock data; for dynamically created txs, build a placeholder
+      const found = MOCK_TRANSACTIONS.find(t => t._id === id);
+      if (found) {
+        setTx(found);
+      } else {
+        // Dynamically created transaction from SendMoney flow
+        setTx({
+          _id: id,
+          amount: 100,
+          type: 'p2p',
+          status: 'completed',
+          note: 'Peer transfer',
+          txHash: '0x' + id.replace('tx_', '') + '0'.repeat(20),
+          prevHash: '0x000000000000000000000000000000',
+          blockIndex: 9999,
+          createdAt: new Date().toISOString(),
+          senderId: { name: 'You', campusId: 'CC-STU-9042' },
+          receiverId: { name: 'Recipient', campusId: 'CC-STU-0000' },
+        });
+      }
+      setLoading(false);
+    }, 400);
   }, [id]);
 
   const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);

@@ -2,10 +2,8 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { AreaChart, Area, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import { MOCK_WEEKLY, MOCK_MONTHLY, MOCK_BY_CATEGORY } from '../api/mockData';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const COLORS = ['#00f0ff', '#ff0055', '#00ff66', '#a5b4fc', '#f472b6'];
 
 const Insights = () => {
@@ -15,23 +13,12 @@ const Insights = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    Promise.all([api.get('/insights/weekly'), api.get('/insights/monthly')])
-      .then(([w, m]) => {
-        const weekData = Array(7).fill(0).map((_, i) => ({ day: DAYS[i], spent: 0 }));
-        w.data.weekly.forEach(d => { const idx = (d._id.day - 1) % 7; weekData[idx].spent = d.total; });
-        setWeekly(weekData);
-        setByCategory((w.data.byCategory || []).map(c => ({ name: c._id, value: c.total })));
-        const sentMap = {};
-        const recvMap = {};
-        (m.data.monthly.sent || []).forEach(d => { sentMap[`${d._id.year}-${d._id.month}`] = d.spent; });
-        (m.data.monthly.received || []).forEach(d => { recvMap[`${d._id.year}-${d._id.month}`] = d.received; });
-        const keys = [...new Set([...Object.keys(sentMap), ...Object.keys(recvMap)])].sort();
-        setMonthly(keys.map(k => {
-          const [y, mo] = k.split('-');
-          return { month: MONTHS[parseInt(mo) - 1], spent: sentMap[k] || 0, received: recvMap[k] || 0 };
-        }));
-      })
-      .finally(() => setLoading(false));
+    setTimeout(() => {
+      setWeekly(MOCK_WEEKLY);
+      setMonthly(MOCK_MONTHLY);
+      setByCategory(MOCK_BY_CATEGORY);
+      setLoading(false);
+    }, 500);
   }, []);
 
   const fmt = n => `$${(n || 0).toFixed(0)}`;
@@ -87,33 +74,31 @@ const Insights = () => {
               </div>
 
               {/* Categories Pie */}
-              {byCategory.length > 0 && (
-                <div className="card p-6">
-                  <h2 className="font-headline font-semibold text-on-surface mb-1">Spending by Category</h2>
-                  <p className="text-xs text-on-surface-variant font-body mb-6">Distribution by transaction type</p>
-                  <div className="flex items-center gap-8">
-                    <ResponsiveContainer width="40%" height={200}>
-                      <PieChart>
-                        <Pie data={byCategory} cx="50%" cy="50%" innerRadius={60} outerRadius={80} dataKey="value" paddingAngle={4}>
-                          {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                        </Pie>
-                        <Tooltip formatter={v => fmt(v)} contentStyle={{ borderRadius: 12, border: '1px solid #27272a', background: '#050505', color: '#f4f4f5' }} />
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="space-y-3 flex-1">
-                      {byCategory.map((c, i) => (
-                        <div key={c.name} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-3 h-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                            <span className="text-sm font-body text-on-surface capitalize">{c.name}</span>
-                          </div>
-                          <span className="text-sm font-headline font-semibold text-on-surface">{fmt(c.value)}</span>
+              <div className="card p-6">
+                <h2 className="font-headline font-semibold text-on-surface mb-1">Spending by Category</h2>
+                <p className="text-xs text-on-surface-variant font-body mb-6">Distribution by transaction type</p>
+                <div className="flex items-center gap-8">
+                  <ResponsiveContainer width="40%" height={200}>
+                    <PieChart>
+                      <Pie data={byCategory} cx="50%" cy="50%" innerRadius={60} outerRadius={80} dataKey="value" paddingAngle={4}>
+                        {byCategory.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                      </Pie>
+                      <Tooltip formatter={v => fmt(v)} contentStyle={{ borderRadius: 12, border: '1px solid #27272a', background: '#050505', color: '#f4f4f5' }} />
+                    </PieChart>
+                  </ResponsiveContainer>
+                  <div className="space-y-3 flex-1">
+                    {byCategory.map((c, i) => (
+                      <div key={c.name} className="flex items-center justify-between">
+                        <div className="flex items-center gap-2">
+                          <div className="w-3 h-3 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                          <span className="text-sm font-body text-on-surface capitalize">{c.name}</span>
                         </div>
-                      ))}
-                    </div>
+                        <span className="text-sm font-headline font-semibold text-on-surface">{fmt(c.value)}</span>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
+              </div>
             </>
           )}
         </motion.div>

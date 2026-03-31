@@ -2,46 +2,49 @@ import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
 import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import { MOCK_ADMIN_STATS, MOCK_USERS, MOCK_TRANSACTIONS } from '../api/mockData';
 
-const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const COLORS = ['#00f0ff', '#ff0055', '#00ff66'];
-const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }).format(n || 0);
+const fmt     = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD', notation: 'compact', maximumFractionDigits: 1 }).format(n || 0);
 const fmtFull = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
 
 const Admin = () => {
-  const [stats, setStats] = useState(null);
-  const [users, setUsers] = useState([]);
+  const [stats, setStats]   = useState(null);
+  const [users, setUsers]   = useState([]);
+  const [txs, setTxs]       = useState([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
-  const [txs, setTxs] = useState([]);
+  const [allUsers, setAllUsers] = useState([]);
 
   useEffect(() => {
-    Promise.all([api.get('/admin/stats'), api.get('/admin/users'), api.get('/admin/transactions?limit=8')])
-      .then(([s, u, t]) => { setStats(s.data.stats); setUsers(u.data.users); setTxs(t.data.transactions); })
-      .finally(() => setLoading(false));
+    setTimeout(() => {
+      setStats(MOCK_ADMIN_STATS);
+      setUsers(MOCK_USERS);
+      setAllUsers(MOCK_USERS);
+      setTxs(MOCK_TRANSACTIONS.slice(0, 8));
+      setLoading(false);
+    }, 500);
   }, []);
 
-  const searchUsers = async () => {
-    const { data } = await api.get(`/admin/users?search=${search}`);
-    setUsers(data.users);
+  const searchUsers = () => {
+    if (!search.trim()) { setUsers(allUsers); return; }
+    const q = search.toLowerCase();
+    setUsers(allUsers.filter(u => u.name.toLowerCase().includes(q) || u.email.toLowerCase().includes(q)));
   };
 
-  const updateRole = async (id, role) => {
-    const { data } = await api.patch(`/admin/users/${id}`, { role });
-    setUsers(u => u.map(usr => usr._id === id ? { ...usr, role: data.user.role } : usr));
+  const updateRole = (id, role) => {
+    const update = u => u._id === id ? { ...u, role } : u;
+    setUsers(u => u.map(update));
+    setAllUsers(u => u.map(update));
   };
 
-  const toggleStatus = async (id, currentStatus) => {
-    const { data } = await api.patch(`/admin/users/${id}`, { isActive: !currentStatus });
-    setUsers(u => u.map(usr => usr._id === id ? { ...usr, isActive: data.user.isActive } : usr));
+  const toggleStatus = (id, currentStatus) => {
+    const update = u => u._id === id ? { ...u, isActive: !currentStatus } : u;
+    setUsers(u => u.map(update));
+    setAllUsers(u => u.map(update));
   };
 
-  const monthlyData = (stats?.monthlyData || []).map(d => ({
-    month: MONTHS[d._id.month - 1], volume: d.volume, count: d.count
-  }));
-
-  const volumeByType = (stats?.volumeByType || []).map(v => ({ name: v._id, value: v.total }));
+  const volumeByType = (stats?.volumeByType || []).map(v => ({ name: v.name, value: v.value }));
 
   return (
     <div className="page-wrapper">
@@ -61,10 +64,10 @@ const Admin = () => {
             {/* Stats Row */}
             <div className="grid grid-cols-4 gap-4">
               {[
-                { label: 'Total Active Users', value: stats?.totalUsers?.toLocaleString(), icon: 'group', color: 'text-primary' },
-                { label: 'Gross Revenue', value: fmt(stats?.grossVolume), icon: 'payments', color: 'text-tertiary' },
-                { label: 'System Integrity', value: `${stats?.systemIntegrity}%`, icon: 'shield', color: 'text-secondary' },
-                { label: 'Active Nodes', value: stats?.activeNodes?.toLocaleString(), icon: 'device_hub', color: 'text-primary' },
+                { label: 'Total Active Users', value: stats?.totalUsers?.toLocaleString(), icon: 'group',      color: 'text-primary'   },
+                { label: 'Gross Revenue',       value: fmt(stats?.grossVolume),             icon: 'payments',   color: 'text-tertiary'  },
+                { label: 'System Integrity',    value: `${stats?.systemIntegrity}%`,        icon: 'shield',     color: 'text-secondary' },
+                { label: 'Active Nodes',        value: stats?.activeNodes?.toLocaleString(),icon: 'device_hub', color: 'text-primary'   },
               ].map(s => (
                 <div key={s.label} className="stat-card">
                   <div className={`w-9 h-9 rounded-xl ${s.color.replace('text-', 'bg-')}/10 flex items-center justify-center mb-3`}>
@@ -80,10 +83,10 @@ const Admin = () => {
             <div className="grid grid-cols-3 gap-4">
               <div className="card p-6 col-span-2">
                 <h2 className="font-headline font-semibold text-on-surface mb-1">Spending Trends</h2>
-                <p className="text-xs text-on-surface-variant font-body mb-4">Daily volume across all departments</p>
+                <p className="text-xs text-on-surface-variant font-body mb-4">Monthly volume across all departments</p>
                 <ResponsiveContainer width="100%" height={180}>
-                  <BarChart data={monthlyData} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="#eaeff1" vertical={false} />
+                  <BarChart data={stats?.monthlyData || []} margin={{ top: 4, right: 4, bottom: 4, left: 4 }}>
+                    <CartesianGrid strokeDasharray="3 3" stroke="#27272a" vertical={false} />
                     <XAxis dataKey="month" tick={{ fontSize: 10, fill: '#a1a1aa', fontFamily: 'Inter' }} axisLine={false} tickLine={false} />
                     <YAxis tickFormatter={v => fmt(v)} tick={{ fontSize: 10, fill: '#a1a1aa' }} axisLine={false} tickLine={false} />
                     <Tooltip formatter={v => fmtFull(v)} contentStyle={{ borderRadius: 12, border: '1px solid #27272a', background: '#050505', boxShadow: '0 0 10px rgba(0,240,255,0.2)', fontFamily: 'Inter', color: '#f4f4f5' }} />
@@ -95,28 +98,24 @@ const Admin = () => {
               <div className="card p-6">
                 <h2 className="font-headline font-semibold text-on-surface mb-1">Volume Source</h2>
                 <p className="text-xs text-on-surface-variant font-body mb-4">By transaction type</p>
-                {volumeByType.length > 0 ? (
-                  <>
-                    <ResponsiveContainer width="100%" height={100}>
-                      <PieChart>
-                        <Pie data={volumeByType} cx="50%" cy="50%" innerRadius={30} outerRadius={44} dataKey="value" paddingAngle={3}>
-                          {volumeByType.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
-                        </Pie>
-                      </PieChart>
-                    </ResponsiveContainer>
-                    <div className="space-y-2 mt-3">
-                      {volumeByType.map((v, i) => (
-                        <div key={v.name} className="flex items-center justify-between">
-                          <div className="flex items-center gap-2">
-                            <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
-                            <span className="text-xs font-body text-on-surface capitalize">{v.name}</span>
-                          </div>
-                          <span className="text-xs font-headline font-semibold">{fmt(v.value)}</span>
-                        </div>
-                      ))}
+                <ResponsiveContainer width="100%" height={100}>
+                  <PieChart>
+                    <Pie data={volumeByType} cx="50%" cy="50%" innerRadius={30} outerRadius={44} dataKey="value" paddingAngle={3}>
+                      {volumeByType.map((_, i) => <Cell key={i} fill={COLORS[i % COLORS.length]} />)}
+                    </Pie>
+                  </PieChart>
+                </ResponsiveContainer>
+                <div className="space-y-2 mt-3">
+                  {volumeByType.map((v, i) => (
+                    <div key={v.name} className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <div className="w-2.5 h-2.5 rounded-full" style={{ background: COLORS[i % COLORS.length] }} />
+                        <span className="text-xs font-body text-on-surface capitalize">{v.name}</span>
+                      </div>
+                      <span className="text-xs font-headline font-semibold">{fmt(v.value)}</span>
                     </div>
-                  </>
-                ) : <p className="text-xs text-on-surface-variant font-body">No data yet</p>}
+                  ))}
+                </div>
               </div>
             </div>
 
@@ -125,7 +124,8 @@ const Admin = () => {
               <div className="flex items-center justify-between mb-4">
                 <h2 className="font-headline font-semibold text-on-surface">User Management</h2>
                 <div className="flex gap-2">
-                  <input className="input-field text-sm w-56" placeholder="Search users..." value={search} onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && searchUsers()} id="admin-search" />
+                  <input className="input-field text-sm w-56" placeholder="Search users..." value={search}
+                    onChange={e => setSearch(e.target.value)} onKeyDown={e => e.key === 'Enter' && searchUsers()} id="admin-search" />
                   <button onClick={searchUsers} className="btn-primary text-sm px-4" id="admin-search-btn">Search</button>
                 </div>
               </div>
@@ -168,7 +168,7 @@ const Admin = () => {
                               <option value="admin">Admin</option>
                               <option value="vendor">Vendor</option>
                             </select>
-                            <button onClick={() => toggleStatus(u._id, u.isActive !== false)} 
+                            <button onClick={() => toggleStatus(u._id, u.isActive !== false)}
                               className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${u.isActive !== false ? 'bg-error/10 text-error hover:bg-error/20 border border-error/20' : 'bg-tertiary/10 text-tertiary hover:bg-tertiary/20 border border-tertiary/20'}`}>
                               {u.isActive !== false ? 'Suspend' : 'Activate'}
                             </button>

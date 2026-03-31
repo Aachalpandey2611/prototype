@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
 import QRScanner from "../components/QRScanner";
-import api from "../api/axios";
+
 
 const stagger = {
   container: { animate: { transition: { staggerChildren: 0.08 } } },

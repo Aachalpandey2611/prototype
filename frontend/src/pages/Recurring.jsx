@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import Sidebar from '../components/Sidebar';
-import api from '../api/axios';
+import { MOCK_RECURRING } from '../api/mockData';
 
 const FREQ_LABELS = { daily: 'Daily', weekly: 'Weekly', monthly: 'Monthly' };
 const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
@@ -15,25 +15,33 @@ const Recurring = () => {
   const [error, setError] = useState('');
 
   useEffect(() => {
-    api.get('/recurring').then(({ data }) => setRecurring(data.recurring)).finally(() => setLoading(false));
+    setTimeout(() => { setRecurring(MOCK_RECURRING); setLoading(false); }, 400);
   }, []);
 
-  const handleCreate = async e => {
+  const handleCreate = e => {
     e.preventDefault(); setError(''); setSubmitting(true);
-    try {
-      const { data } = await api.post('/recurring', { ...form, amount: Number(form.amount) });
-      if (data.success) { setRecurring(r => [data.recurring, ...r]); setShowForm(false); setForm({ receiverEmail: '', amount: '', frequency: 'weekly', label: '' }); }
-    } catch (err) { setError(err.response?.data?.message || 'Failed'); }
-    finally { setSubmitting(false); }
+    setTimeout(() => {
+      const newRec = {
+        _id: 'rec_' + Date.now(),
+        label: form.label || `Payment to ${form.receiverEmail}`,
+        receiverId: { name: form.receiverEmail, email: form.receiverEmail },
+        amount: Number(form.amount),
+        frequency: form.frequency,
+        active: true,
+        nextRun: new Date(Date.now() + 7 * 86400000).toISOString(),
+      };
+      setRecurring(r => [newRec, ...r]);
+      setShowForm(false);
+      setForm({ receiverEmail: '', amount: '', frequency: 'weekly', label: '' });
+      setSubmitting(false);
+    }, 600);
   };
 
-  const toggle = async (id) => {
-    const { data } = await api.patch(`/recurring/${id}/toggle`);
-    setRecurring(r => r.map(rec => rec._id === id ? data.recurring : rec));
+  const toggle = (id) => {
+    setRecurring(r => r.map(rec => rec._id === id ? { ...rec, active: !rec.active } : rec));
   };
 
-  const remove = async (id) => {
-    await api.delete(`/recurring/${id}`);
+  const remove = (id) => {
     setRecurring(r => r.filter(rec => rec._id !== id));
   };
 
