@@ -32,12 +32,11 @@ const Login = () => {
   };
 
   const handleQuickLogin = (type) => {
-    setLoading(true);
     mockLogin(type);
     setTimeout(() => {
-      navigate("/dashboard");
-      setLoading(false);
-    }, 300);
+      window.location.href = "/dashboard";
+    }, 100);
+  };
   };
 
   const handleLogin = (e) => {
