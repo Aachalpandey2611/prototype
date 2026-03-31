@@ -33,10 +33,11 @@ const Login = () => {
 
   const handleQuickLogin = (type) => {
     setLoading(true);
+    mockLogin(type);
     setTimeout(() => {
-      mockLogin(type);
       navigate("/dashboard");
-    }, 500);
+      setLoading(false);
+    }, 300);
   };
 
   const handleLogin = (e) => {

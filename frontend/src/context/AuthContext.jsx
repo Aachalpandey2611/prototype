@@ -42,9 +42,9 @@ export const AuthProvider = ({ children }) => {
 
   const mockLogin = useCallback((type) => {
     const mockUser = type === 'admin' 
-      ? { id: 'admin_123', name: 'Admin User', email: 'admin@campus.edu', role: 'admin', campusId: 'CC-ADMIN-001' }
-      : { id: 'student_123', name: 'Test Student', email: 'student@campus.edu', role: 'student', campusId: 'CC-STU-9042' };
-    const mockToken = 'mock-jwt-token-123';
+      ? { id: 'admin_123', name: 'Dr. Alexander Vance', email: 'admin@campus.edu', role: 'admin', campusId: 'CC-ADMIN-001' }
+      : { id: 'student_123', name: 'Alex Rivera', email: 'student@campus.edu', role: 'student', campusId: 'CC-STU-9042' };
+    const mockToken = 'mock-jwt-token-' + Date.now();
     localStorage.setItem('cc_token', mockToken);
     localStorage.setItem('cc_user', JSON.stringify(mockUser));
     setToken(mockToken);
