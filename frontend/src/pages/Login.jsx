@@ -37,7 +37,6 @@ const Login = () => {
       window.location.href = "/dashboard";
     }, 100);
   };
-  };
 
   const handleLogin = (e) => {
     e.preventDefault();

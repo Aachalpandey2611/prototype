@@ -15,6 +15,7 @@ const allowedOrigins = process.env.ALLOWED_ORIGINS
       "http://localhost:5173",
       "http://localhost:3000",
       "https://campuschain.vercel.app",
+      "https://prototype-jade-alpha.vercel.app",
     ];
 
 app.use(
@@ -52,7 +53,13 @@ app.use((err, req, res, next) => {
 });
 
 const PORT = process.env.PORT || 3001;
-app.listen(PORT, () => {
-  console.log(`🚀 CampusChain API running on http://localhost:${PORT}`);
-  console.log(`📦 Environment: ${process.env.NODE_ENV}`);
-});
+
+// Only start the server if this file is run directly (useful for local / Render), otherwise export for serverless (Vercel)
+if (require.main === module) {
+  app.listen(PORT, () => {
+    console.log(`🚀 CampusChain API running on http://localhost:${PORT}`);
+    console.log(`📦 Environment: ${process.env.NODE_ENV}`);
+  });
+}
+
+module.exports = app;

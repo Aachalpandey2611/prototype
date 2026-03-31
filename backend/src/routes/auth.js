@@ -78,4 +78,19 @@ router.get('/me', require('../middleware/auth'), async (req, res) => {
   }
 });
 
+// PATCH /api/auth/me
+router.patch('/me', require('../middleware/auth'), async (req, res) => {
+  try {
+    const { name, department, phone } = req.body;
+    const user = await User.findByIdAndUpdate(
+      req.user.id,
+      { name, department, phone },
+      { new: true }
+    ).select('-passwordHash');
+    res.json({ success: true, user });
+  } catch (err) {
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 module.exports = router;
