@@ -3,7 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import Sidebar from "../components/Sidebar";
 import { useAuth } from "../context/AuthContext";
-import { MOCK_WALLET, MOCK_TRANSACTIONS } from "../api/mockData";
 
 const Wallet = () => {
   const { user } = useAuth();
@@ -16,8 +15,53 @@ const Wallet = () => {
   const [topupMsg, setTopupMsg] = useState("");
 
   useEffect(() => {
-    setWallet(MOCK_WALLET);
-    setTxs(MOCK_TRANSACTIONS.slice(0, 3));
+    // Mock demo data
+    const mockWallet = {
+      _id: "wallet_1",
+      balance: 5240.5,
+      monthlyInflow: 3500.0,
+      monthlyOutflow: 1260.0,
+      dailyLimit: 5000.0,
+    };
+
+    const mockTxs = [
+      {
+        _id: "tx1",
+        from: user?.email,
+        to: "sarah@campus.edu",
+        amount: 150,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 86400000),
+        fromName: "You",
+        toName: "Sarah Jensen",
+      },
+      {
+        _id: "tx2",
+        from: "john@campus.edu",
+        to: user?.email,
+        amount: 500,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 172800000),
+        fromName: "John Smith",
+        toName: "You",
+      },
+      {
+        _id: "tx3",
+        from: user?.email,
+        to: "vendor@campus.edu",
+        amount: 85.5,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 259200000),
+        fromName: "You",
+        toName: "Vendor",
+      },
+    ];
+
+    setWallet(mockWallet);
+    setTxs(mockTxs);
     setLoading(false);
   }, [user]);
 
@@ -167,9 +211,8 @@ const Wallet = () => {
               </h2>
               <div className="card p-2 space-y-1">
                 {txs.map((tx, i) => {
-                  const isIncoming =
-                    tx.receiverId?._id === user?.id ||
-                    tx.receiverId === user?.id;
+                  const isIncoming = tx.receiverId?._id === user?.id || tx.receiverId === user?.id || tx.to === user?.email;
+                  const counterpartyName = isIncoming ? (tx.senderId?.name || tx.fromName) : (tx.receiverId?.name || tx.toName);
                   return (
                     <motion.div
                       key={tx._id}
@@ -191,16 +234,13 @@ const Wallet = () => {
                         </div>
                         <div>
                           <p className="font-body font-medium text-on-surface text-sm">
-                            {tx.note ||
-                              (isIncoming
-                                ? tx.senderId?.name
-                                : tx.receiverId?.name)}
+                            {tx.note || counterpartyName || "Unknown"}
                           </p>
                           <p className="text-xs text-on-surface-variant font-mono">
-                            {tx.txHash?.slice(0, 20)}...
+                            {tx.txHash ? `${tx.txHash.slice(0, 20)}...` : `0x${tx._id}2f48d...`}
                           </p>
                           <p className="text-xs text-on-surface-variant">
-                            {fmtDate(tx.createdAt)}
+                            {fmtDate(tx.createdAt || tx.date)}
                           </p>
                         </div>
                       </div>

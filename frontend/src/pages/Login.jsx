@@ -55,53 +55,12 @@ const Login = () => {
             </div>
             <span className="font-headline font-bold text-white text-xl">CampusChain</span>
           </div>
-          <h2 className="font-headline font-bold text-white text-3xl leading-tight mb-4">
-            FT-01: CampusChain
+          <h2 className="font-headline font-bold text-white text-5xl leading-tight mb-6">
+            The institutional<br />ledger for<br />modern academia.
           </h2>
-          <div className="text-white/70 font-body text-sm leading-relaxed max-w-lg space-y-4 pr-4 max-h-[35vh] overflow-y-auto scrollbar-thin scrollbar-thumb-white/20 scrollbar-track-transparent">
-            <div>
-              <p className="text-white font-bold mb-1 uppercase tracking-wide text-xs">Problem Statement</p>
-              <p>Design a blockchain-based financial ecosystem tailored for educational institutions, enabling seamless and secure digital transactions within a campus environment.</p>
-            </div>
-            
-            <div>
-              <p className="text-white font-bold mb-1 uppercase tracking-wide text-xs">The system supports:</p>
-              <ul className="list-disc pl-4 space-y-1 text-white/60">
-                <li>A campus-specific digital currency or token system</li>
-                <li>Secure transactions for fees, events, services, and peer-to-peer payments</li>
-                <li>Smart contract-based automation for payments</li>
-                <li>Administrative controls for managing users, permissions, and transaction policies</li>
-              </ul>
-            </div>
-
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <p className="text-white font-bold mb-1 uppercase tracking-wide text-xs">🔹 Features</p>
-                <ul className="list-disc pl-4 space-y-1 text-white/60 text-xs">
-                  <li>Campus-specific digital wallet</li>
-                  <li>Peer-to-peer payments</li>
-                  <li>Fee & service payments</li>
-                  <li>Blockchain-backed records</li>
-                </ul>
-              </div>
-              <div>
-                <p className="text-white font-bold mb-1 uppercase tracking-wide text-xs">🏗 System Design</p>
-                <ul className="list-disc pl-4 space-y-1 text-white/60 text-xs">
-                  <li>Frontend (User Interface)</li>
-                  <li>Backend (API + Logic)</li>
-                  <li>Database (Transactions)</li>
-                  <li>Blockchain Layer (Security)</li>
-                </ul>
-              </div>
-            </div>
-
-            <div>
-              <p className="text-white font-bold mb-1 uppercase tracking-wide text-xs">🔄 Workflow</p>
-              <p className="text-white/80 font-mono text-xs bg-white/5 p-2 rounded-lg break-words">
-                User → Wallet → Transaction → Blockchain → Record → Dashboard
-              </p>
-            </div>
-          </div>
+          <p className="text-white/60 font-body text-lg leading-relaxed max-w-md">
+            Secure, transparent, and immutable financial infrastructure for the world's leading educational institutions.
+          </p>
         </div>
 
         {/* Demo info panel on left side */}
