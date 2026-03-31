@@ -33,10 +33,10 @@ const Login = () => {
 
   const handleQuickLogin = (type) => {
     mockLogin(type);
+    // Wait to ensure localStorage is written, then hard reload
     setTimeout(() => {
       window.location.href = "/dashboard";
-    }, 100);
-  };
+    }, 200);
   };
 
   const handleLogin = (e) => {

@@ -10,17 +10,18 @@ import api from "../api/axios";
 const AuthContext = createContext(null);
 
 export const AuthProvider = ({ children }) => {
-  const [user, setUser] = useState(null);
-  const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true);
+  // Read from localStorage immediately on mount
+  const storedToken =
+    typeof window !== "undefined" ? localStorage.getItem("cc_token") : null;
+  const storedUser =
+    typeof window !== "undefined" ? localStorage.getItem("cc_user") : null;
+
+  const [user, setUser] = useState(storedUser ? JSON.parse(storedUser) : null);
+  const [token, setToken] = useState(storedToken);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const storedToken = localStorage.getItem("cc_token");
-    const storedUser = localStorage.getItem("cc_user");
-    if (storedToken && storedUser) {
-      setToken(storedToken);
-      setUser(JSON.parse(storedUser));
-    }
+    // Just mark loading as done
     setLoading(false);
   }, []);
 
