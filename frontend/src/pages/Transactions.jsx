@@ -15,14 +15,18 @@ const Transactions = () => {
   const [filter, setFilter] = useState({ type: '', status: '' });
 
   const fetchTxs = async (p = 1) => {
-    setLoading(true);
-    try {
-      const params = new URLSearchParams({ page: p, limit: 15, ...filter });
-      const { data } = await api.get(`/transactions?${params}`);
-      setTxs(data.transactions);
-      setStats({ total: data.total, pages: data.pages });
-      setPage(p);
-    } finally { setLoading(false); }
+    // Mock demo data
+    const mockTxs = [
+      { _id: "tx1", from: user?.email, to: "sarah@campus.edu", amount: 150, status: "success", type: "transfer", date: new Date(Date.now() - 86400000), fromName: "You", toName: "Sarah Jensen" },
+      { _id: "tx2", from: "john@campus.edu", to: user?.email, amount: 500, status: "success", type: "transfer", date: new Date(Date.now() - 172800000), fromName: "John Smith", toName: "You" },
+      { _id: "tx3", from: user?.email, to: "vendor@campus.edu", amount: 85.50, status: "success", type: "transfer", date: new Date(Date.now() - 259200000), fromName: "You", toName: "Vendor" },
+      { _id: "tx4", from: "admin@campus.edu", to: user?.email, amount: 2000, status: "success", type: "topup", date: new Date(Date.now() - 345600000), fromName: "Admin", toName: "You" },
+      { _id: "tx5", from: user?.email, to: "emma@campus.edu", amount: 325, status: "success", type: "transfer", date: new Date(Date.now() - 432000000), fromName: "You", toName: "Emma Wilson" },
+    ];
+    
+    setTxs(mockTxs);
+    setStats({ total: mockTxs.length, pages: 1 });
+    setPage(p);
   };
 
   useEffect(() => { fetchTxs(1); }, [filter]);

@@ -16,10 +16,25 @@ const Wallet = () => {
   const [topupMsg, setTopupMsg] = useState('');
 
   useEffect(() => {
-    Promise.all([api.get('/wallet'), api.get('/transactions?limit=10')])
-      .then(([w, t]) => { setWallet(w.data.wallet); setTxs(t.data.transactions); })
-      .finally(() => setLoading(false));
-  }, []);
+    // Mock demo data
+    const mockWallet = {
+      _id: "wallet_1",
+      balance: 5240.50,
+      monthlyInflow: 3500.00,
+      monthlyOutflow: 1260.00,
+      dailyLimit: 5000.00,
+    };
+    
+    const mockTxs = [
+      { _id: "tx1", from: user?.email, to: "sarah@campus.edu", amount: 150, status: "success", type: "transfer", date: new Date(Date.now() - 86400000), fromName: "You", toName: "Sarah Jensen" },
+      { _id: "tx2", from: "john@campus.edu", to: user?.email, amount: 500, status: "success", type: "transfer", date: new Date(Date.now() - 172800000), fromName: "John Smith", toName: "You" },
+      { _id: "tx3", from: user?.email, to: "vendor@campus.edu", amount: 85.50, status: "success", type: "transfer", date: new Date(Date.now() - 259200000), fromName: "You", toName: "Vendor" },
+    ];
+
+    setWallet(mockWallet);
+    setTxs(mockTxs);
+    setLoading(false);
+  }, [user]);
 
   const fmt = n => new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(n || 0);
   const fmtDate = d => new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });

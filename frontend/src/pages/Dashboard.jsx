@@ -21,20 +21,67 @@ const Dashboard = () => {
   const [showScanner, setShowScanner] = useState(false);
 
   useEffect(() => {
-    Promise.all([api.get("/wallet"), api.get("/transactions?limit=5")])
-      .then(([w, t]) => {
-        setWallet(w.data.wallet);
-        setTxs(t.data.transactions);
-        setError(null);
-      })
-      .catch((err) => {
-        console.error("Dashboard error:", err);
-        setError(
-          err.response?.data?.message || "Failed to load dashboard data",
-        );
-      })
-      .finally(() => setLoading(false));
-  }, []);
+    // Mock demo data for showcase
+    const mockWallet = {
+      _id: "wallet_1",
+      balance: 5240.5,
+      monthlyInflow: 3500.0,
+      monthlyOutflow: 1260.0,
+      userId: user?.id,
+    };
+
+    const mockTransactions = [
+      {
+        _id: "tx1",
+        from: user?.email,
+        to: "sarah@campus.edu",
+        amount: 150,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 86400000),
+      },
+      {
+        _id: "tx2",
+        from: "john@campus.edu",
+        to: user?.email,
+        amount: 500,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 172800000),
+      },
+      {
+        _id: "tx3",
+        from: user?.email,
+        to: "vendor@campus.edu",
+        amount: 85.5,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 259200000),
+      },
+      {
+        _id: "tx4",
+        from: "admin@campus.edu",
+        to: user?.email,
+        amount: 2000,
+        status: "success",
+        type: "topup",
+        date: new Date(Date.now() - 345600000),
+      },
+      {
+        _id: "tx5",
+        from: user?.email,
+        to: "emma@campus.edu",
+        amount: 325,
+        status: "success",
+        type: "transfer",
+        date: new Date(Date.now() - 432000000),
+      },
+    ];
+
+    setWallet(mockWallet);
+    setTxs(mockTransactions);
+    setLoading(false);
+  }, [user]);
 
   const fmt = (n) =>
     new Intl.NumberFormat("en-US", {
@@ -96,14 +143,6 @@ const Dashboard = () => {
               <div className="w-16 h-16 rounded-full bg-primary-gradient animate-spin mx-auto mb-4" />
               <p className="text-on-surface-variant">Loading dashboard...</p>
             </div>
-          </div>
-        ) : error ? (
-          <div className="rounded-2xl bg-error/10 border border-error/30 p-8">
-            <p className="text-error font-headline font-bold text-lg mb-2">Error loading dashboard</p>
-            <p className="text-error/80 mb-6">{error}</p>
-            <button onClick={() => window.location.reload()} className="px-6 py-3 rounded-lg bg-error text-white font-medium hover:bg-error/90 transition">
-              Retry
-            </button>
           </div>
         ) : (
           <motion.div
